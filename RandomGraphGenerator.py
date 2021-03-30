@@ -1,6 +1,8 @@
 import numpy as np
+import sys
 import time
 import random
+import json
 
 """
     Creates the random instance based on specific parameters
@@ -9,11 +11,23 @@ import random
 """
 
 
-def main(n=5, denseGraph=False):
+def main(n=5, denseGraph=False, nameFile="test.json"):
     startTime = time.time()  # time start
-    # ramdomMatrix = np.zeros((n, n), dtype=int)
-    # # adjacency = np.random.randint(0, 2, (n, n)) #50% probability
-    # print(adjacency)
+    matrix = createAdjancencyList(n, denseGraph)
+    endTime = time.time() - startTime  # time end
+    print("The running time: %.0f\n", endTime)
+
+    writeToFile(nameFile, matrix)
+
+
+"""
+    Generate a random instance of a graph
+    @arg n number of nodes
+    @arg denseGraph boolean to control # of edges
+"""
+
+
+def createAdjancencyList(n, dense):
     randomAdjencyDict = {}
     for vertex in range(1, n + 1):
         # randomAdjencyDict[str(vertex)] = [1, 2]
@@ -23,7 +37,7 @@ def main(n=5, denseGraph=False):
                 pass
             else:
                 chance = random.randint(0, 100)
-                if denseGraph:
+                if dense:
                     print("Dense graph")
                     if chance > 65:
                         neighbors.append(vertexNeighbor)
@@ -33,10 +47,31 @@ def main(n=5, denseGraph=False):
                         neighbors.append(vertexNeighbor)
                     # else no connection
         randomAdjencyDict[str(vertex)] = neighbors
-
-    endTime = time.time() - startTime  # time end
-    print(randomAdjencyDict)
-    print("The running time: %.0f\n", endTime)
+    return randomAdjencyDict
 
 
-main()
+"""
+    Writes the random instance generated into a test file
+    @arg nameOfFile 
+"""
+
+
+def writeToFile(nameOfFile, matrix):
+
+    try:
+        data = {}
+        writer = open("./" + nameOfFile, "a+")
+        data["generator"] = matrix
+        json.dump(data, writer)
+    finally:
+        writer.close()
+
+
+if __name__ == "__main__":
+    inputAl = sys.argv
+    # if(len(inputAl) == 3):
+    #     n, nameFile,  = int(inputAl[1]), inputAl[1],
+    # elif(len(inputAl)==2):
+    #     n, nameFile = int(inputAl[1]), int(inputAl[2])
+    # # main(n, k)
+    main()  # default values
