@@ -21,3 +21,6 @@ Logic sets matrix such that loops are not permitted.
 
 ## Main Module
 Controls the program flow. 
+
+## How to run?
+python RamdonGraphGenerator.py
