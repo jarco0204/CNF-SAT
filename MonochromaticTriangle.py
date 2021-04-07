@@ -1,5 +1,5 @@
 import json
-import time
+
 
 """
     This file is the graph solution to the monographic triangle problem.
@@ -13,13 +13,15 @@ import time
 """
 
 
-def main(filename):
+def reduceGraphToSAT(inputFilename, outputFilename):
     try:
-        with open(filename) as f:
+        with open(inputFilename) as f:
             data = json.load(f)
-            startTime = time.time()  # time start
-            variables, clauses, illegalTriangles = solveMonoTriangle(data["generator"])
-            outputCNF(variables, clauses, illegalTriangles)
+            variables, edges, clauses, illegalTriangles = solveMonoTriangle(
+                data["generator"]
+            )
+            outputCNF(variables, clauses, illegalTriangles, outputFilename)
+            return edges
 
     finally:
         f.close()
@@ -32,11 +34,11 @@ def main(filename):
 """
 
 
-def outputCNF(variables, numClauses, triangles):
+def outputCNF(variables, numClauses, triangles, filename="./instance.cnf"):
     clauses = createClauses(triangles)
     try:
 
-        writer = open("./" + "instance.cnf", "a+")
+        writer = open(filename, "a+")
         writer.truncate(0)  # erase all the content
 
         # Write first line
@@ -87,8 +89,8 @@ def createClauses(triangles):
 def solveMonoTriangle(instance):
     vertices = instance.keys()
     edges = createSetOfEdges(vertices, instance)
-    print("Adjacency list of problem: ", instance)
-    print("All edges is the graph :", edges)
+    # print("Adjacency list of problem: ", instance)
+    # print("All edges is the graph :", edges)
     # Solution to go through all edges and check
     illegalTriangles = []
     for edge in edges:
@@ -109,8 +111,8 @@ def solveMonoTriangle(instance):
                     and [neighbor, edge[1], edge[0]] not in illegalTriangles
                 ):
                     illegalTriangles.append([edge[0], neighbor, edge[1]])
-    print("Illegal triangles : ", illegalTriangles)
-    return len(vertices), 2 * len(illegalTriangles), illegalTriangles
+    # print("Illegal triangles : ", illegalTriangles)
+    return len(vertices), len(edges), 2 * len(illegalTriangles), illegalTriangles
 
 
 """
@@ -131,5 +133,5 @@ def createSetOfEdges(vertices, data):
 
 
 if __name__ == "__main__":
-    main("randomInstance.json")  # default values
+    reduceGraphToSAT("randomInstance.json")  # default values
 
