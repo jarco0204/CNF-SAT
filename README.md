@@ -2,6 +2,8 @@
 
 # Author: Johan Alexander Arcos Mendez
 
+# SAT solver used: PySAT
+
 ## Random Instance Generator Module
 Creates a stochastic UNDIRECTED GRAPH in adjanceny form.
 e.g., {"1": [2,3,4],

@@ -1,5 +1,5 @@
 import numpy as np
-import sys
+
 import time
 import random
 import json
@@ -11,7 +11,7 @@ import json
 """
 
 
-def main(n=5, denseGraph=False, nameFile="test.json"):
+def main(n=5, denseGraph=False, nameFile="randomInstance.json"):
     startTime = time.time()  # time start
     matrix = createAdjancencyList(n, denseGraph)
     endTime = time.time() - startTime  # time end
@@ -61,6 +61,7 @@ def writeToFile(nameOfFile, matrix):
     try:
         data = {}
         writer = open("./" + nameOfFile, "a+")
+        writer.truncate(0)  # erase
         data["generator"] = matrix
         json.dump(data, writer)
     finally:
@@ -68,10 +69,4 @@ def writeToFile(nameOfFile, matrix):
 
 
 if __name__ == "__main__":
-    inputAl = sys.argv
-    # if(len(inputAl) == 3):
-    #     n, nameFile,  = int(inputAl[1]), inputAl[1],
-    # elif(len(inputAl)==2):
-    #     n, nameFile = int(inputAl[1]), int(inputAl[2])
-    # # main(n, k)
     main()  # default values
