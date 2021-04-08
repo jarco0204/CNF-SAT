@@ -1,9 +1,10 @@
 from pysat.solvers import Glucose3
 import sys
 import time
+import math
 from MonochromaticTriangle import reduceGraphToSAT
 from RandomGraphGenerator import generateRandomGraph
-from plotResults import plotFirstQuestion
+from plotResults import plotFirstQuestion, plotSecondQuestion, plotSparse, plotDense
 
 """
     This is the primary entry file to this project.
@@ -20,17 +21,20 @@ def main():
 
     # First section computes random instance for normal graphs. Probability is 0.5.
     # Second section runs the SAT solver on these created instances
-    filename = "./test.json"
-    outputCNF = "./test.cnf"
-    plotDataFirstQuestFile = "./firstQuestionPlot.txt"  # edges and number of vertices
-    plotDataSecondQuestFile = (
-        "./secondQuestionPlot.txt"  # time, fractionSatisInstances, #vertices
+    filename = "./normalGraph.json"
+    outputCNF = "./normalGraph.cnf"
+    plotDataFirstQuestFile = (
+        "./firstQuestionPlotNormal.txt"  # edges and number of vertices
     )
+    plotDataSecondQuestFile = (
+        "./secondQuestionPlotNormal.txt"  # time, fractionSatisInstances, #vertices
+    )
+
     try:
         writer = open(plotDataFirstQuestFile, "a+")
         writer.truncate(0)  # erase the contents before appending
         writerSAT = open(plotDataSecondQuestFile, "a+")
-        writer.truncate(0)  # erase the contents before appending
+        writerSAT.truncate(0)  # erase the contents before appending
         for numVertices in range(5, 31):
             averageEdges = 0
             averageRunningTimeSAT = 0
@@ -69,7 +73,105 @@ def main():
         writerSAT.close()
 
     plotFirstQuestion(plotDataFirstQuestFile)
+    plotSecondQuestion(plotDataSecondQuestFile)
     # ------------------------------- End first & second sections  -------------------------
+
+    # ------------------------------- Variation of parameters section Start ----------------
+    plotDataThirdEdgesQuestSparseFile = "./thirdQuestionEdgesSparsePlot.txt"
+    plotDataThirdTimeQuestSparseFile = "./thirdQuestionTimeSparsePlot.txt"
+    fileNameSparse = "./sparse.json"
+    outputCNFSparse = "./sparse.cnf"
+
+    plotDataThirdQuestEdgesDenseFile = "./thirdQuestionEdgesDensePlot.txt"
+    plotDataThirdQuestTimeDenseFile = "./thirdQuestionTimeDensePlot.txt"
+    fileNameDense = "./dense.json"
+    outputCNFDense = "./dense.cnf"
+    try:
+        writerSparse = open(plotDataThirdEdgesQuestSparseFile, "a+")
+        writerSparse.truncate(0)  # erase the contents before appending
+        writerSATSparse = open(plotDataThirdTimeQuestSparseFile, "a+")
+        writerSATSparse.truncate(0)  # erase the contents before appending
+
+        writerDense = open(plotDataThirdQuestEdgesDenseFile, "a+")
+        writerDense.truncate(0)  # erase the contents before appending
+        writerSATDense = open(plotDataThirdQuestTimeDenseFile, "a+")
+        writerSATDense.truncate(0)  # erase the contents before appending
+
+        for numVertices in range(5, 31):
+            averageEdgesSparse = 0
+            averageRunningTimeSATSparse = 0
+            satisfiableInstancesSparse = 0
+
+            averageEdgesDense = 0
+            averageRunningTimeSATDense = 0
+            satisfiableInstancesDense = 0
+            for i in range(10):
+                generateRandomGraph(
+                    numVertices, 1, fileNameSparse
+                )  # 1 represents sparse graph
+                edgesSparse = reduceGraphToSAT(fileNameSparse, outputCNFSparse)
+                averageEdgesSparse += edgesSparse
+
+                generateRandomGraph(
+                    numVertices, 3, fileNameDense
+                )  # 1 represents dense graph
+                edgesDense = reduceGraphToSAT(fileNameDense, outputCNFDense)
+                averageEdgesDense += edgesDense
+
+                # Start Sparse second section
+                startTime = time.time()  # time start
+                answer, partiton = addClausestoSATSolver(outputCNFSparse)
+                endTime = time.time() - startTime  # time end
+                averageRunningTimeSATSparse += endTime
+                if answer == True:
+                    satisfiableInstancesSparse += 1
+
+                # Start Dense second section
+                startTime = time.time()  # time start
+                answer, partiton = addClausestoSATSolver(outputCNFDense)
+                endTime = time.time() - startTime  # time end
+                averageRunningTimeSATDense += endTime
+                if answer == True:
+                    satisfiableInstancesDense += 1
+
+            averageEdgesSparse = float(averageEdgesSparse / 10)
+            writerSparse.write(str(averageEdgesSparse) + "," + str(numVertices) + "\n")
+
+            fractionOfSatisfiableSparse = float(satisfiableInstancesSparse / 10)
+            averageTimeSparse = float(averageRunningTimeSATSparse / 10)
+            writerSATSparse.write(
+                str(averageTimeSparse)
+                + ","
+                + str(fractionOfSatisfiableSparse)
+                + ","
+                + str(numVertices)
+                + "\n"
+            )
+
+            averageEdgesDense = float(averageEdgesDense / 10)
+            writerDense.write(str(averageEdgesDense) + "," + str(numVertices) + "\n")
+
+            fractionOfSatisfiableDense = float(satisfiableInstancesDense / 10)
+            averageTimeDense = float(averageRunningTimeSATDense / 10)
+            writerSATDense.write(
+                str(averageTimeDense)
+                + ","
+                + str(fractionOfSatisfiableDense)
+                + ","
+                + str(numVertices)
+                + "\n"
+            )
+
+    finally:
+        writerSparse.close()
+        writerSATSparse.close()
+        writerDense.close()
+        writerSATDense.close()
+
+    plotSparse(plotDataThirdEdgesQuestSparseFile, plotDataThirdTimeQuestSparseFile)
+    plotDense(plotDataThirdQuestEdgesDenseFile, plotDataThirdQuestTimeDenseFile)
+
+    # ------------------------------- Variation of parameters section End ----------------
 
 
 """
