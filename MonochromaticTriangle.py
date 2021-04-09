@@ -2,7 +2,7 @@ import json
 
 
 """
-    This file is the graph solution to the monographic triangle problem.
+    This file is the graph solution to the monochromatic triangle problem.
 
     Input: An n-node undirected graph G(V,E) with node set V and edge set E. 
 

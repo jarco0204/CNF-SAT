@@ -25,4 +25,9 @@ Logic sets matrix such that loops are not permitted.
 Controls the program flow. 
 
 ## How to run?
-python RamdonGraphGenerator.py
+You can run a module individually, with this command:
+python "nameOfFile" e.g., python RamdonGraphGenerator.py
+
+In order to visualize the project completely run: (Note: it takes some time to show the graphics)
+
+python Main.py
